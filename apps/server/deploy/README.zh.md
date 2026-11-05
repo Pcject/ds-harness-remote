@@ -1,5 +1,7 @@
 # 自建部署示例（Server + coturn）
 
+> **注意**：示例中的 `pcject/dsh-remote:v0.6.2` 是个人基于当前 WebRTC/TURN 版本构建的测试镜像，**未经过完整的检查与验证**，仅用于演示。正式部署请优先自行构建镜像（见「自行构建镜像」），或使用上游正式发布的镜像。
+
 本目录提供一个最小可用的 Docker Compose 部署示例，用于运行 `pcject/dsh-remote:v0.6.2`（含 Server 端 WebRTC signaling / TURN credential 支持）和 coturn，实现 `LAN -> P2P -> TURN -> Relay` 四路连接。
 
 如果在其它环境使用上游镜像或自己构建的版本，只需修改 `compose.yaml` 里的 `image`。
@@ -27,6 +29,34 @@
 `8080` 只绑定在本机，由反向代理访问，不要直接暴露公网。
 
 > coturn 使用 `network_mode: host`：TURN 需要真实源 IP 和 UDP relay 端口段，Docker 端口映射不可靠。该示例面向 Linux；macOS/Windows 的 Docker Desktop 不支持 host 网络。
+
+## 自行构建镜像（推荐）
+
+示例镜像为个人构建，未经完整检查与验证。建议从对应源码自行构建，再替换 `compose.yaml` 中的 `image`：
+
+```bash
+# 在仓库根目录执行：Dockerfile 需要仓库根作为构建上下文
+git clone https://github.com/Pcject/ds-harness-remote.git
+cd ds-harness-remote
+# 切换到包含 WebRTC/TURN 支持的分支（PR 合并前用 feat/server-webrtc-turn）
+git checkout feat/server-webrtc-turn
+
+docker build -f apps/server/Dockerfile -t dsh-remote:local .
+```
+
+然后把 `compose.yaml` 中的：
+
+```yaml
+image: pcject/dsh-remote:v0.6.2
+```
+
+改为：
+
+```yaml
+image: dsh-remote:local
+```
+
+即可启动。上游正式镜像在 WebRTC/TURN PR 合并并发布前不包含该功能，不要直接替换成上游旧镜像。
 
 ## 快速启动
 

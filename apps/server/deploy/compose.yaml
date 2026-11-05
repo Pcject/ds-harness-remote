@@ -1,11 +1,16 @@
 # Server + coturn 自建部署示例。
 # 使用前：cp env.example .env 并填写；然后 docker compose --env-file .env up -d
 #
+# 注意：下面的 pcject/dsh-remote:v0.6.2 是个人基于当前 WebRTC/TURN 版本构建的测试镜像，
+# 未经过完整检查与验证。正式部署请优先自行构建，并把 image 替换成自己的标签，
+# 构建方法见 README.zh.md「自行构建镜像」。
+#
 # coturn 使用 host 网络：需要真实源 IP 和 UDP relay 端口段，仅适用于 Linux。
 # 如果不用 TURN：删除 coturn 服务，并在 .env 中清空 DSH_SERVER_TURN_*。
 
 services:
   server:
+    # 个人构建的测试镜像，未经完整验证；推荐替换为自行构建的镜像
     image: pcject/dsh-remote:v0.6.2
     container_name: dsh-remote-server
     restart: unless-stopped
